@@ -15,6 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        //Set Initial View Controller
+        window = UIWindow()
+        window?.rootViewController = PaletteListViewController()
         
         return true
     }
