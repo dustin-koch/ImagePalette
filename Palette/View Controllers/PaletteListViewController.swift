@@ -10,18 +10,32 @@ import UIKit
 
 class PaletteListViewController: UIViewController {
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let imageViewSpace: CGFloat  = (view.frame.width - (2 * SpacingConstants.outerHorizontalPadding))
+        let titleLableSpace: CGFloat = SpacingConstants.oneLineElementHeight
+        let colorPaletteViewSpace: CGFloat = SpacingConstants.twoLineElementHeight
+        let verticalPadding: CGFloat = (3 * SpacingConstants.verticalObjectBuffer)
+        let outerVerticalPadding: CGFloat = (2 * SpacingConstants.outerVerticalPadding)
+        
+        return imageViewSpace + titleLableSpace + colorPaletteViewSpace + verticalPadding + outerVerticalPadding
+    }
+    
     //MARK: - Properties
+    var photos: [UnsplashPhoto] = []
+    
     var safeArea: UILayoutGuide {
         return self.view.safeAreaLayoutGuide
     }
     var buttons: [UIButton] {
         return [randomButton, featuredButton, doubleRainbowButton]
     }
+    
 
     override func loadView() {
         super.loadView()
         addAllSubViews()
         setupStackView()
+        paletteTableView.anchor(top: buttonStackView.bottomAnchor, bottom: safeArea.bottomAnchor, leading: safeArea.leadingAnchor, trailing: safeArea.trailingAnchor, paddingTop: 8, paddingBottom: 0, paddingLeading: 0, paddingTrailing: 0)
     }
     
     override func viewDidLoad() {
@@ -29,6 +43,7 @@ class PaletteListViewController: UIViewController {
         view.backgroundColor = .white
         activateButtons()
         selectButton(featuredButton)
+        configureTableView()
     }
     
     func addAllSubViews() {
@@ -36,6 +51,7 @@ class PaletteListViewController: UIViewController {
         view.addSubview(randomButton)
         view.addSubview(doubleRainbowButton)
         view.addSubview(buttonStackView)
+        view.addSubview(paletteTableView)
     }
     
     func setupStackView() {
@@ -43,9 +59,18 @@ class PaletteListViewController: UIViewController {
         buttonStackView.addArrangedSubview(featuredButton)
         buttonStackView.addArrangedSubview(randomButton)
         buttonStackView.addArrangedSubview(doubleRainbowButton)
-        buttonStackView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 16).isActive = true
-        buttonStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16).isActive = true
-        buttonStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16).isActive = true
+//        buttonStackView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 16).isActive = true
+//        buttonStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16).isActive = true
+//        buttonStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16).isActive = true
+        //same thing as above
+        buttonStackView.anchor(top: safeArea.topAnchor, bottom: nil, leading: safeArea.leadingAnchor, trailing: safeArea.trailingAnchor, paddingTop: 16, paddingBottom: 16, paddingLeading: 16, paddingTrailing: -16)
+    }
+    
+    func configureTableView() {
+        paletteTableView.dataSource = self
+        paletteTableView.delegate = self
+        paletteTableView.register(PaletteTableViewCell.self, forCellReuseIdentifier: "colorCell")
+        paletteTableView.allowsSelection = false
     }
     
     func activateButtons() {
@@ -91,6 +116,11 @@ class PaletteListViewController: UIViewController {
         return stackView
     }()
     
+    let paletteTableView: UITableView = {
+        let tableView = UITableView()
+        return tableView
+    }()
+    
     @objc func searchButtonTapped(sender: UIButton) {
         switch sender {
         case featuredButton:
@@ -105,3 +135,20 @@ class PaletteListViewController: UIViewController {
     }
     
 }//END OF CLASS
+
+extension PaletteListViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return photos.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "colorCell", for: indexPath) as? PaletteTableViewCell else { return UITableViewCell()}
+        let unsplashPhoto = photos[indexPath.row]
+        cell.unsplashPhoto = unsplashPhoto
+        
+        return cell
+    }
+    
+    
+}
