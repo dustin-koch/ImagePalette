@@ -44,6 +44,7 @@ class PaletteListViewController: UIViewController {
         activateButtons()
         selectButton(featuredButton)
         configureTableView()
+        searchForCategory(.featured)
     }
     
     func addAllSubViews() {
@@ -71,6 +72,16 @@ class PaletteListViewController: UIViewController {
         paletteTableView.delegate = self
         paletteTableView.register(PaletteTableViewCell.self, forCellReuseIdentifier: "colorCell")
         paletteTableView.allowsSelection = false
+    }
+    
+    func searchForCategory (_ unsplashRoute: UnsplashRoute) {
+        UnsplashService.shared.fetchFromUnsplash(for: unsplashRoute) { (photos) in
+            guard let photos = photos else { return }
+            self.photos = photos
+            DispatchQueue.main.async {
+                self.paletteTableView.reloadData()
+            }
+        }
     }
     
     func activateButtons() {
@@ -122,13 +133,14 @@ class PaletteListViewController: UIViewController {
     }()
     
     @objc func searchButtonTapped(sender: UIButton) {
+        selectButton(sender)
         switch sender {
         case featuredButton:
-            selectButton(featuredButton)
+            searchForCategory(.featured)
         case randomButton:
-            selectButton(randomButton)
+            searchForCategory(.random)
         case doubleRainbowButton:
-            selectButton(doubleRainbowButton)
+            searchForCategory(.doubleRainbow)
         default:
             print("How did you find the fourth button? 🤪")
         }
